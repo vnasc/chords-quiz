@@ -81,6 +81,7 @@
   const chordDegrees = ['I','ii','iii','IV','V','vi'];
   const $ = id => document.getElementById(id);
   let question, correct=0, answered=0, playing=false, audioContext, playTimer, stepTimers=[];
+  const SETTINGS_KEY='chord-quiz-settings-v1';
   const STATS_KEY='chord-quiz-progress-v1';
   const LEGACY_STATS_KEY='cadence-prototype-stats';
   const stats = (()=>{try{const stored=localStorage.getItem(STATS_KEY),legacy=stored===null,raw=stored??localStorage.getItem(LEGACY_STATS_KEY),parsed=raw?JSON.parse(raw):null;if(legacy&&parsed){try{localStorage.setItem(STATS_KEY,JSON.stringify(parsed));localStorage.removeItem(LEGACY_STATS_KEY)}catch{}}return parsed||{correct:0,answered:0}}catch{return {correct:0,answered:0}}})();
@@ -88,6 +89,18 @@
   const wave = $('wave');
   for(let i=0;i<21;i++){const bar=document.createElement('i');bar.style.setProperty('--h',`${6+Math.abs(Math.sin(i*1.71))*72}px`);bar.style.setProperty('--d',`${(i%9)*-.07}s`);wave.append(bar)}
   function shuffle(items){const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+  function loadSettings(){
+    try{
+      const saved=JSON.parse(localStorage.getItem(SETTINGS_KEY));
+      if(!saved)return;
+      if(['random',...Object.keys(roots)].includes(saved.key))$('key').value=saved.key;
+      if(['3','4'].includes(String(saved.length)))$('length').value=String(saved.length);
+      if(['slow','normal','fast'].includes(saved.speed))$('speed').value=saved.speed;
+    }catch{}
+  }
+  function saveSettings(){
+    try{localStorage.setItem(SETTINGS_KEY,JSON.stringify({key:$('key').value,length:$('length').value,speed:$('speed').value}))}catch{}
+  }
   function newRound(){
     stopVisual();
     const length=Number($('length').value), key=$('key').value;
@@ -168,8 +181,12 @@
   }
   $('play').addEventListener('click',play);
   $('reset-progress').addEventListener('click',()=>{if(!window.confirm('Reset progress?'))return;correct=0;answered=0;try{localStorage.removeItem(STATS_KEY);localStorage.removeItem(LEGACY_STATS_KEY)}catch{}updateStats()});
-  $('next').addEventListener('click',()=>{newRound();play()});$('key').addEventListener('change',newRound);$('length').addEventListener('change',newRound);
+  $('next').addEventListener('click',()=>{newRound();play()});
+  $('key').addEventListener('change',()=>{saveSettings();newRound()});
+  $('length').addEventListener('change',()=>{saveSettings();newRound()});
+  $('speed').addEventListener('change',saveSettings);
   document.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)&&!question.checked){e.preventDefault();question.sequence.pop();renderBuilder()}if((e.key===' '||e.key==='Enter')&&e.target===document.body){e.preventDefault();play()}});
+  loadSettings();
   newRound();
 })();
 </script>
