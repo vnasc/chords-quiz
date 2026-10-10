@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f5f2ea">
+<title>Chord Quiz — identify progressions by ear</title>
+<style>
+  :root{--paper:#f5f2ea;--card:#fffdf8;--ink:#242922;--muted:#77796f;--line:#e7e2d7;--green:#365b46;--green-dark:#274633;--lime:#d4e5a2;--orange:#d88759;--soft:#f0eee6;--shadow:0 18px 55px #2933220c}
+  *{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
+  button,select{font:inherit} button{cursor:pointer} button:focus-visible,select:focus-visible{outline:3px solid #95b87c;outline-offset:3px}
+  .shell{max-width:1100px;padding:25px 30px 42px;margin:auto}
+  .layout{display:grid;grid-template-columns:270px minmax(0,1fr);grid-template-areas:"side main";gap:22px;align-items:start}.main-card,.side-card{background:var(--card);border:1px solid var(--line);border-radius:19px;box-shadow:var(--shadow)}.main-card{grid-area:main;padding:30px 36px 32px}.side-column{grid-area:side}.side-card{padding:23px 21px;margin-bottom:15px}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:750;color:var(--muted)}.round-row{display:flex;justify-content:space-between;align-items:center}.round-label{display:flex;align-items:center;gap:9px}.round-label .live-dot{height:7px;width:7px;background:#85a56e;border-radius:50%;box-shadow:0 0 0 4px #85a56e20}.accuracy-pill{font-size:12px;color:var(--green);background:#edf2e5;border-radius:999px;padding:7px 11px;font-weight:700}
+  h1{font-size:36px;line-height:1.08;letter-spacing:-.055em;margin:0;font-weight:720}
+  .play-zone{position:relative;height:160px;margin:0 0 26px;padding:0;background:#edf1e8;border:1px solid #dfe6d7;border-radius:15px;overflow:hidden}.play-button{position:absolute;inset:0;width:100%;height:100%;border:0;color:var(--green);background:transparent;padding:0;border-radius:14px;display:flex;align-items:stretch;justify-content:stretch;transition:background .15s}.play-button:hover{background:#e5ecdd}.play-button .wave{width:100%;height:100%;margin:0;padding:20px 14%;gap:0;justify-content:space-between;opacity:.9}.play-button .wave i{width:auto;min-width:2px;max-width:8px;flex:1;background:#829777}
+  .wave{height:32px;display:flex;gap:4px;align-items:center;justify-content:center;margin:17px 0 5px;opacity:.52}.wave i{height:var(--h);max-height:100%;width:3px;border-radius:4px;background:#879b79;transform:scaleY(.9);transition:transform .15s}.wave.playing i{animation:pulse .65s ease-in-out infinite alternate;animation-delay:var(--d)}@keyframes pulse{to{transform:scaleY(1.05);background:#f1b185}}
+  .answer-header{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px}.answer-header .eyebrow{color:#666b60}.sequence{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:22px}.sequence-slot{height:59px;border:1px dashed #d8d5ca;border-radius:11px;background:#faf9f4;color:var(--ink);font:600 22px ui-serif,Georgia,serif;display:grid;place-items:center;transition:.15s}.sequence-slot.filled{border-style:solid;border-color:#bdc9b4;background:#f2f4ec}.sequence-slot.filled:hover{border-color:#d88759}.sequence-slot.correct{border-color:#9ab28b;background:#eef4e8}.sequence-slot.wrong{border-color:#dfa58e;background:#fff3ed;display:flex;align-items:center;justify-content:center;gap:7px}.sequence-slot.audio-current{border-color:#8cae75;background:#eaf3e3;box-shadow:0 0 0 3px #8cae7526;opacity:1}.sequence-slot s{color:#a36950;font-size:17px}.correction{color:var(--green);font-size:20px;font-weight:750}.sequence-slot:disabled{cursor:default}.chord-bank{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}.chord-choice{min-height:57px;border:1px solid var(--line);background:#fffefa;border-radius:11px;color:var(--ink);font:600 20px ui-serif,Georgia,serif;transition:.15s}.chord-choice:hover:not(:disabled){border-color:#9dad92;background:#fbfcf7;transform:translateY(-1px)}.chord-choice:disabled{opacity:.45;cursor:default}
+  .next-button{position:absolute;z-index:2;right:12px;bottom:12px;width:40px;height:40px;border:1px solid #edb28f;border-radius:50%;background:#f5c19f;color:#44352c;padding:0;display:none;place-items:center;box-shadow:0 2px 7px #d8875930;transition:background .15s,border-color .15s}.next-button.visible{display:grid}.next-button svg{width:18px;height:18px}.next-button:hover{border-color:#e5a477;background:#f0b58e;color:#382b24}
+  .side-title{font-size:13px;letter-spacing:-.01em;margin:0 0 18px;font-weight:750}.setting{display:block;margin-bottom:17px}.setting:last-child{margin-bottom:0}.setting label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin:0 0 7px}.setting select{width:100%;height:40px;border:1px solid var(--line);border-radius:9px;background:#fffefa;color:var(--ink);padding:0 11px;font-size:13px}
+  .progress-card{padding:20px 21px}.progress-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}.progress-heading .side-title{margin:0}.reset-progress{border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:650;padding:5px 0}.reset-progress:hover{color:var(--green)}.progress-bar{height:6px;background:#efede5;border-radius:9px;overflow:hidden;margin:10px 0 9px}.progress-fill{height:100%;background:#90a77e;border-radius:9px;width:0;transition:width .3s}.progress-caption{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  @media(max-width:800px){.shell{padding:20px 19px 32px}.layout{grid-template-columns:1fr;grid-template-areas:"main" "side"}.side-column{display:grid;grid-template-columns:1fr 1fr;gap:14px}.side-card{margin:0}}
+  @media(max-width:540px){.shell{padding:15px 13px 26px}.main-card{padding:23px 17px 20px;border-radius:16px}.side-column{grid-template-columns:1fr;gap:12px}.play-zone{height:130px;margin:0 0 20px}.play-button .wave{padding:16px 16%}.next-button{right:9px;bottom:9px;width:36px;height:36px}.sequence{gap:6px}.sequence-slot{height:53px;font-size:20px}.chord-bank{gap:6px}.chord-choice{min-height:52px;font-size:18px}}
+  @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="layout">
+    <main class="main-card" aria-label="Chord progression ear training">
+      <section class="play-zone" aria-label="Audio playback">
+        <button id="play" class="play-button" type="button" aria-label="Play progression" title="Play progression"><span class="wave" id="wave" aria-hidden="true"></span></button><button class="next-button" id="next" type="button" aria-label="Next progression" title="Next progression" hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </section>
+      <div class="answer-header"><span class="eyebrow">PROGRESSION</span><span class="eyebrow" id="sequence-count"></span></div>
+      <div class="sequence" id="sequence" aria-label="Your progression"></div>
+      <div class="answer-header"><span class="eyebrow">CHORDS</span></div>
+      <div class="chord-bank" id="choices" role="group" aria-label="Chord choices"></div>
+    </main>
+    <aside class="side-column" aria-label="Practice settings and progress">
+      <section class="side-card"><h2 class="side-title">Settings</h2>
+        <div class="setting"><label for="key">Key</label><select id="key"><option value="random">Random</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>A</option><option>B</option></select></div>
+        <div class="setting"><label for="length">Length</label><select id="length"><option value="3">3 chords</option><option value="4" selected>4 chords</option></select></div>
+        <div class="setting"><label for="speed">Playback speed</label><select id="speed"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select></div>
+      </section>
+      <section class="side-card progress-card"><div class="progress-heading"><h2 class="side-title">Progress</h2><button id="reset-progress" class="reset-progress" type="button">Reset</button></div><div class="progress-caption"><span>Accuracy</span><strong id="progress-text">—</strong></div><div class="progress-bar" role="progressbar" aria-label="Accuracy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-fill" id="progress-fill"></div></div><div class="progress-caption"><span id="correct-count">0 correct</span><span id="total-count">0 answered</span></div></section>
+    </aside>
+  </div>
+</div>
+<script>
+(() => {
+  'use strict';
+  const templates = [
+    {id:'pop', name:'The pop loop', four:['I','V','vi','IV'], three:['I','V','vi']},
+    {id:'anthem', name:'The anthem', four:['I','IV','V','I'], three:['I','IV','V']},
+    {id:'wistful', name:'The wistful turn', four:['vi','IV','I','V'], three:['vi','IV','I']},
+    {id:'classic', name:'The classic cadence', four:['I','vi','ii','V'], three:['ii','V','I']},
+    {id:'home', name:'The way home', four:['I','IV','I','V'], three:['I','vi','V']},
+    {id:'gentle', name:'The gentle lift', four:['I','iii','IV','V'], three:['I','iii','IV']},
+    {id:'minor', name:'The minor turn', four:['vi','IV','V','I'], three:['vi','ii','V']},
+    {id:'walk', name:'The descending walk', four:['I','V','IV','I'], three:['I','V','IV']},
+    {id:'circle', name:'The circle', four:['I','vi','ii','V'], three:['I','ii','V']},
+    {id:'fifties', name:'The 50s cadence', four:['I','vi','IV','V'], three:['I','vi','ii']},
+    {id:'six-four', name:'Six-four resolve', four:['I','V','vi','iii'], three:['IV','I','V']},
+    {id:'minor-descent', name:'Minor descent', four:['vi','V','IV','V'], three:['vi','V','IV']},
+    {id:'open-road', name:'Open road', four:['I','ii','IV','V'], three:['I','ii','V']},
+    {id:'bright-turn', name:'Bright turn', four:['I','iii','vi','IV'], three:['I','IV','vi']},
+    {id:'plagal', name:'Plagal turn', four:['IV','I','V','vi'], three:['IV','I','vi']},
+    {id:'lift', name:'The lift', four:['IV','V','iii','vi'], three:['IV','V','I']},
+    {id:'falling-third', name:'Falling thirds', four:['iii','vi','ii','V'], three:['iii','vi','ii']},
+    {id:'soft-landing', name:'Soft landing', four:['vi','iii','IV','I'], three:['I','iii','V']},
+    {id:'backdoor', name:'Back around', four:['I','IV','ii','V'], three:['IV','ii','V']},
+    {id:'dominant-turn', name:'Dominant turn', four:['V','vi','IV','I'], three:['I','vi','ii']},
+    {id:'open-cadence', name:'Open cadence', four:['I','vi','ii','IV'], three:['ii','IV','I']},
+    {id:'minor-predominant', name:'Minor predominant', four:['vi','IV','ii','V'], three:['V','vi','ii']},
+    {id:'reordered', name:'Reordered cadence', four:['I','ii','V','IV'], three:['I','IV','ii']}
+  ];
+  const roots = {C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+  const degreeSemitones = {I:0,ii:2,iii:4,IV:5,V:7,vi:9};
+  const quality = {I:'major',ii:'minor',iii:'minor',IV:'major',V:'major',vi:'minor'};
+  const chordDegrees = ['I','ii','iii','IV','V','vi'];
+  const $ = id => document.getElementById(id);
+  let question, correct=0, answered=0, playing=false, audioContext, playTimer, stepTimers=[];
+  const STATS_KEY='chord-quiz-progress-v1';
+  const LEGACY_STATS_KEY='cadence-prototype-stats';
+  const stats = (()=>{try{const stored=localStorage.getItem(STATS_KEY),legacy=stored===null,raw=stored??localStorage.getItem(LEGACY_STATS_KEY),parsed=raw?JSON.parse(raw):null;if(legacy&&parsed){try{localStorage.setItem(STATS_KEY,JSON.stringify(parsed));localStorage.removeItem(LEGACY_STATS_KEY)}catch{}}return parsed||{correct:0,answered:0}}catch{return {correct:0,answered:0}}})();
+  correct=Number(stats.correct)||0; answered=Number(stats.answered)||0;
+  const wave = $('wave');
+  for(let i=0;i<21;i++){const bar=document.createElement('i');bar.style.setProperty('--h',`${6+Math.abs(Math.sin(i*1.71))*72}px`);bar.style.setProperty('--d',`${(i%9)*-.07}s`);wave.append(bar)}
+  function shuffle(items){const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+  function newRound(){
+    stopVisual();
+    const length=Number($('length').value), key=$('key').value;
+    const keyName=key==='random'?Object.keys(roots)[Math.floor(Math.random()*7)]:key;
+    const field=length===4?'four':'three';
+    const available=templates.map(t=>t[field]).filter((seq,i,all)=>all.findIndex(other=>other.join('|')===seq.join('|'))===i);
+    const previous=question?.correct?.join('|');
+    const choices=available.filter(seq=>seq.join('|')!==previous);
+    const pool=choices.length?choices:available;
+    question={length,keyName,correct:pool[Math.floor(Math.random()*pool.length)],sequence:[],checked:false,hasPlayed:false};
+    $('next').hidden=true;$('next').classList.remove('visible');
+    renderBuilder();
+    updateStats();
+  }
+  function renderBuilder(){
+    const {sequence,length,checked}=question;
+    $('sequence-count').textContent=`${sequence.length} / ${length}`;
+    $('sequence').style.gridTemplateColumns=`repeat(${length},minmax(0,1fr))`;
+    $('sequence').innerHTML=Array.from({length},(_,index)=>{
+      const chord=sequence[index]||'';
+      const matches=chord===question.correct[index];
+      const resultClass=checked?(matches?'correct':'wrong'):'';
+      const content=checked&&!matches?`<s>${chord}</s><span class="correction">${question.correct[index]}</span>`:chord;
+      const label=chord?`Position ${index+1}: ${chord}${checked&&!matches?`, correct chord ${question.correct[index]}`:''}`:`Position ${index+1}: empty`;
+      return `<button class="sequence-slot ${chord?'filled':''} ${resultClass}" type="button" data-slot="${index}" aria-label="${label}" ${!chord||checked?'disabled':''}>${content}</button>`;
+    }).join('');
+    $('sequence').querySelectorAll('.sequence-slot:not(:disabled)').forEach(button=>button.addEventListener('click',()=>{question.sequence.splice(Number(button.dataset.slot),1);renderBuilder()}));
+    $('choices').innerHTML=chordDegrees.map(chord=>`<button class="chord-choice" type="button" data-chord="${chord}" aria-label="Add ${chord}" ${!question.hasPlayed||checked||sequence.length===length?'disabled':''}>${chord}</button>`).join('');
+    $('choices').querySelectorAll('.chord-choice:not(:disabled)').forEach(button=>button.addEventListener('click',()=>{question.sequence.push(button.dataset.chord);if(question.sequence.length===question.length)checkAnswer();else renderBuilder()}));
+  }
+  function chordNotes(degree,keyMidi){const root=keyMidi+degreeSemitones[degree];return quality[degree]==='major'?[root,root+4,root+7]:[root,root+3,root+7]}
+  function getAudio(){if(!audioContext)audioContext=new(window.AudioContext||window.webkitAudioContext)();if(audioContext.state==='suspended')audioContext.resume();return audioContext}
+  function tone(ctx,frequency,start,duration,volume,type='triangle'){
+    const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=type;osc.frequency.value=frequency;gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(volume,start+.025);gain.gain.exponentialRampToValueAtTime(.0001,start+duration);osc.connect(gain);gain.connect(ctx.destination);osc.start(start);osc.stop(start+duration+.03)
+  }
+  function play(){
+    if(playing)return;const ctx=getAudio(),base=ctx.currentTime+.08,speed=$('speed').value,beat=speed==='slow'?1.05:speed==='fast'?0.5:0.72,duration=beat*.88;
+    const keyMidi=48+roots[question.keyName];const progression=question.correct;
+    playing=true;wave.classList.add('playing');$('play').setAttribute('aria-label','Playing progression');$('play').disabled=true;
+    progression.forEach((degree,index)=>{
+      const start=base+index*beat,notes=chordNotes(degree,keyMidi);
+      // Root in the bass plus a close, soft triad above it.
+      tone(ctx,440*Math.pow(2,(notes[0]-12-69)/12),start,duration*.96,.16,'sine');
+      notes.forEach((n,j)=>tone(ctx,440*Math.pow(2,(n+12-69)/12),start+j*.018,duration,.075,j===0?'triangle':'sine'));
+      const playbackQuestion=question;
+      stepTimers.push(setTimeout(()=>{
+        if(question!==playbackQuestion||!playing)return;
+        Array.from($('sequence').children).forEach((slot,k)=>slot.classList.toggle('audio-current',k===index));
+        $('play').setAttribute('aria-label',`Playing progression, chord ${index+1} of ${progression.length}`);
+      },Math.max(0,(start-ctx.currentTime)*1000)));
+    });
+    const playbackQuestion=question;
+    playTimer=setTimeout(()=>{if(question!==playbackQuestion)return;question.hasPlayed=true;stopVisual();renderBuilder()},(progression.length*beat+.2)*1000);
+  }
+  function stopVisual(){playing=false;clearTimeout(playTimer);stepTimers.forEach(clearTimeout);stepTimers=[];wave.classList.remove('playing');Array.from($('sequence').children).forEach(slot=>slot.classList.remove('audio-current'));if($('play')){$('play').disabled=false;$('play').setAttribute('aria-label','Play progression')}}
+  function checkAnswer(){
+    if(!question||question.checked||question.sequence.length!==question.length)return;
+    question.checked=true;answered++;
+    const isCorrect=question.sequence.every((chord,index)=>chord===question.correct[index]);
+    if(isCorrect)correct++;
+    try{localStorage.setItem(STATS_KEY,JSON.stringify({correct,answered}))}catch{}
+    renderBuilder();
+    $('next').hidden=false;$('next').classList.add('visible');
+    $('next').focus({preventScroll:true});updateStats();
+  }
+  function updateStats(){
+    $('correct-count').textContent=`${correct} correct`;$('total-count').textContent=`${answered} answered`;
+    const pct=answered?Math.round(correct/answered*100):0;$('progress-fill').style.width=`${pct}%`;$('progress-text').textContent=answered?`${pct}%`:'—';document.querySelector('[role="progressbar"]').setAttribute('aria-valuenow',pct)
+  }
+  $('play').addEventListener('click',play);
+  $('reset-progress').addEventListener('click',()=>{if(!window.confirm('Reset progress?'))return;correct=0;answered=0;try{localStorage.removeItem(STATS_KEY);localStorage.removeItem(LEGACY_STATS_KEY)}catch{}updateStats()});
+  $('next').addEventListener('click',()=>{newRound();play()});$('key').addEventListener('change',newRound);$('length').addEventListener('change',newRound);
+  document.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)&&!question.checked){e.preventDefault();question.sequence.pop();renderBuilder()}if((e.key===' '||e.key==='Enter')&&e.target===document.body){e.preventDefault();play()}});
+  newRound();
+})();
+</script>
+</body>
+</html>
