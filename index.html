@@ -111,14 +111,23 @@
       const matches=chord===question.correct[index];
       const resultClass=checked?(matches?'correct':'wrong'):'';
       const content=checked&&!matches?`<s>${chord}</s><span class="correction">${question.correct[index]}</span>`:chord;
-      const label=chord?`Position ${index+1}: ${chord}${checked&&!matches?`, correct chord ${question.correct[index]}`:''}`:`Position ${index+1}: empty`;
-      return `<button class="sequence-slot ${chord?'filled':''} ${resultClass}" type="button" data-slot="${index}" aria-label="${label}" ${!chord||checked?'disabled':''}>${content}</button>`;
+      const label=chord?`Position ${index+1}: ${chord}${checked?', play selected chord':''}${checked&&!matches?`, correct chord ${question.correct[index]}`:''}`:`Position ${index+1}: empty`;
+      return `<button class="sequence-slot ${chord?'filled':''} ${resultClass}" type="button" data-slot="${index}" aria-label="${label}" ${!chord?'disabled':''}>${content}</button>`;
     }).join('');
-    $('sequence').querySelectorAll('.sequence-slot:not(:disabled)').forEach(button=>button.addEventListener('click',()=>{question.sequence.splice(Number(button.dataset.slot),1);renderBuilder()}));
+    $('sequence').querySelectorAll('.sequence-slot:not(:disabled)').forEach(button=>button.addEventListener('click',()=>{
+      const index=Number(button.dataset.slot);
+      if(question.checked){playAnswerChord(index);return}
+      question.sequence.splice(index,1);renderBuilder();
+    }));
     $('choices').innerHTML=chordDegrees.map(chord=>`<button class="chord-choice" type="button" data-chord="${chord}" aria-label="Add ${chord}" ${!question.hasPlayed||checked||sequence.length===length?'disabled':''}>${chord}</button>`).join('');
     $('choices').querySelectorAll('.chord-choice:not(:disabled)').forEach(button=>button.addEventListener('click',()=>{question.sequence.push(button.dataset.chord);if(question.sequence.length===question.length)checkAnswer();else renderBuilder()}));
   }
   function chordNotes(degree,keyMidi){const root=keyMidi+degreeSemitones[degree];return quality[degree]==='major'?[root,root+4,root+7]:[root,root+3,root+7]}
+  function playAnswerChord(index){
+    const ctx=getAudio(),notes=chordNotes(question.sequence[index],48+roots[question.keyName]),start=ctx.currentTime+.025,duration=.8;
+    tone(ctx,440*Math.pow(2,(notes[0]-12-69)/12),start,duration,.16,'sine');
+    notes.forEach((note,j)=>tone(ctx,440*Math.pow(2,(note+12-69)/12),start+j*.018,duration,.075,j===0?'triangle':'sine'));
+  }
   function getAudio(){if(!audioContext)audioContext=new(window.AudioContext||window.webkitAudioContext)();if(audioContext.state==='suspended')audioContext.resume();return audioContext}
   function tone(ctx,frequency,start,duration,volume,type='triangle'){
     const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=type;osc.frequency.value=frequency;gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(volume,start+.025);gain.gain.exponentialRampToValueAtTime(.0001,start+duration);osc.connect(gain);gain.connect(ctx.destination);osc.start(start);osc.stop(start+duration+.03)
