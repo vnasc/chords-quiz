@@ -368,10 +368,10 @@ h1 {
   width: 40px;
   height: 40px;
   place-items: center;
-  border: 1px solid #edb28f;
+  border: 1px solid #c8c7c0;
   border-radius: 50%;
-  background: #f5c19f;
-  color: #44352c;
+  background: #f0efeb;
+  color: #55544e;
   padding: 0;
   box-shadow: 0 2px 7px #d8875930;
   transition: background 0.15s, border-color 0.15s;
@@ -405,9 +405,9 @@ h1 {
 }
 
 .next-button:hover:not(:disabled) {
-  border-color: #e5a477;
-  background: #f0b58e;
-  color: #382b24;
+  border-color: #b5b4ad;
+  background: #e7e6e1;
+  color: #3f3e39;
 }
 
 .next-button:disabled {
