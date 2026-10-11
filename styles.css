@@ -258,12 +258,12 @@ h1 {
 }
 
 .chord-audio-toggle.active {
-  background: #edf2e5;
+  background: transparent;
   color: var(--green);
 }
 
 .chord-audio-toggle.active:hover {
-  background: #e2ead9;
+  background: var(--soft);
   color: var(--green-dark);
 }
 
