@@ -255,8 +255,8 @@ h1 {
 
 .sequence-slot.filled {
   border-style: solid;
-  border-color: #bdc9b4;
-  background: #f2f4ec;
+  border-color: #c8c7c0;
+  background: #f0efeb;
 }
 
 .sequence-slot.filled:hover {
