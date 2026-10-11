@@ -365,6 +365,12 @@ h1 {
   height: 18px;
 }
 
+.next-countdown {
+  font-size: 19px;
+  font-weight: 750;
+  line-height: 1;
+}
+
 .next-button:hover:not(:disabled) {
   border-color: #e5a477;
   background: #f0b58e;

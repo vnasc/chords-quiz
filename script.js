@@ -40,6 +40,8 @@
   let audioContext;
   let playTimer;
   let stepTimers = [];
+  let countdownInterval;
+  let countdown = null;
 
   const SETTINGS_KEY = 'chord-quiz-settings-v1';
   const STATS_KEY = 'chord-quiz-progress-v1';
@@ -95,6 +97,12 @@
       if (['slow', 'normal', 'fast'].includes(saved.speed)) $('speed').value = saved.speed;
 
       $('play-on-select').checked = saved.playOnSelect === true;
+      const countdownSetting = String(saved.autoNextCountdown);
+      if (['0', '1', '3', '5'].includes(countdownSetting)) {
+        $('auto-next-countdown').value = countdownSetting;
+      } else if (saved.autoNextCountdown === true) {
+        $('auto-next-countdown').value = '3';
+      }
     } catch {}
   }
 
@@ -105,11 +113,13 @@
         length: $('length').value,
         speed: $('speed').value,
         playOnSelect: $('play-on-select').checked,
+        autoNextCountdown: $('auto-next-countdown').value,
       }));
     } catch {}
   }
 
   function newRound() {
+    clearAutoNext();
     stopVisual();
 
     const length = Number($('length').value);
@@ -190,14 +200,43 @@
     const icon = isCheckAction
       ? '<path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
       : '<path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-    const label = isCheckAction ? 'Check answer' : 'Next progression';
+    const label = isCheckAction
+      ? 'Check answer'
+      : countdown === null
+        ? 'Next progression'
+        : `Next progression in ${countdown} ${countdown === 1 ? 'second' : 'seconds'}`;
 
-    $('next').innerHTML = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">${icon}</svg>`;
+    $('next').innerHTML = countdown !== null && !isCheckAction
+      ? `<span class="next-countdown" aria-hidden="true">${countdown}</span>`
+      : `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">${icon}</svg>`;
     $('next').setAttribute('aria-label', label);
     $('next').title = label;
     $('next').hidden = !actionAvailable;
     $('next').classList.toggle('visible', actionAvailable);
     $('next').classList.toggle('check-action', isCheckAction);
+  }
+
+  function clearAutoNext() {
+    clearInterval(countdownInterval);
+    countdownInterval = undefined;
+    countdown = null;
+  }
+
+  function startAutoNext() {
+    clearAutoNext();
+    countdown = Number($('auto-next-countdown').value);
+    updateActionButton();
+
+    countdownInterval = setInterval(() => {
+      countdown--;
+      if (countdown === 0) {
+        clearAutoNext();
+        newRound();
+        play();
+        return;
+      }
+      updateActionButton();
+    }, 1000);
   }
 
   function chordNotes(degree, keyMidi) {
@@ -337,6 +376,8 @@
     renderBuilder();
     $('next').focus({ preventScroll: true });
     updateStats();
+
+    if ($('auto-next-countdown').value !== '0') startAutoNext();
   }
 
   function updateStats() {
@@ -383,6 +424,17 @@
 
   $('speed').addEventListener('change', saveSettings);
   $('play-on-select').addEventListener('change', saveSettings);
+  $('auto-next-countdown').addEventListener('change', () => {
+    saveSettings();
+    if (!question.checked) return;
+
+    if ($('auto-next-countdown').value !== '0') {
+      startAutoNext();
+    } else {
+      clearAutoNext();
+      updateActionButton();
+    }
+  });
 
   document.addEventListener('keydown', event => {
     if (
