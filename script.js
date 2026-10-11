@@ -105,9 +105,9 @@
       }
 
       const countdownSetting = String(saved.autoNextCountdown);
-      if (['0', '1', '3', '5'].includes(countdownSetting)) {
+      if (['0', '3', '5'].includes(countdownSetting)) {
         $('auto-next-countdown').value = countdownSetting;
-      } else if (saved.autoNextCountdown === true) {
+      } else if (countdownSetting === '1' || saved.autoNextCountdown === true) {
         $('auto-next-countdown').value = '3';
       }
     } catch {}
