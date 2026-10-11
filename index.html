@@ -16,7 +16,7 @@
       </section>
       <div class="answer-header"><span class="eyebrow">PROGRESSION</span></div>
       <div class="sequence" id="sequence" aria-label="Your progression"></div>
-      <div class="answer-header"><span class="eyebrow">CHORDS</span></div>
+      <div class="answer-header"><span class="eyebrow">CHORDS</span><button id="play-on-select" class="chord-audio-toggle" type="button" aria-label="Hear selected chord: off" title="Hear selected chord: off" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m16 9 5 6m0-6-5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>
       <div class="chord-bank" id="choices" role="group" aria-label="Chord choices"></div>
     </main>
     <aside class="side-column" aria-label="Practice settings and progress">
@@ -26,7 +26,6 @@
         <div class="setting"><label for="speed">Playback speed</label><select id="speed"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select></div>
         <div class="setting"><label for="check-answers">Check answers</label><select id="check-answers"><option value="manual">Manually</option><option value="immediate" selected>Immediately</option><option value="3">After 3 seconds</option><option value="5">After 5 seconds</option></select></div>
         <div class="setting"><label for="auto-next-countdown">Auto-next countdown</label><select id="auto-next-countdown"><option value="0">Off</option><option value="1">1 second</option><option value="3">3 seconds</option><option value="5">5 seconds</option></select></div>
-        <div class="setting"><label class="setting-toggle">Hear selected chord<input id="play-on-select" type="checkbox"></label></div>
       </section>
       <section class="side-card progress-card"><div class="progress-heading"><h2 class="side-title">Statistics</h2><button id="reset-progress" class="reset-progress" type="button">Reset</button></div><div class="progress-caption"><span>Accuracy</span><strong id="progress-text">— (0/0)</strong></div></section>
     </aside>

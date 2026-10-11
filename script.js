@@ -34,6 +34,7 @@
   const $ = id => document.getElementById(id);
 
   let question;
+  let playOnSelect = false;
   let correct = 0;
   let answered = 0;
   let playing = false;
@@ -98,7 +99,7 @@
       if (['3', '4'].includes(String(saved.length))) $('length').value = String(saved.length);
       if (['slow', 'normal', 'fast'].includes(saved.speed)) $('speed').value = saved.speed;
 
-      $('play-on-select').checked = saved.playOnSelect === true;
+      playOnSelect = saved.playOnSelect === true;
       if (['manual', 'immediate', '3', '5'].includes(saved.checkAnswers)) {
         $('check-answers').value = saved.checkAnswers;
       }
@@ -112,13 +113,27 @@
     } catch {}
   }
 
+  function updatePlayOnSelectButton() {
+    const icon = playOnSelect
+      ? '<path d="M11 5 6 9H3v6h3l5 4V5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 8.5a5 5 0 0 1 0 7m3-10a9 9 0 0 1 0 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
+      : '<path d="M11 5 6 9H3v6h3l5 4V5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m16 9 5 6m0-6-5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>';
+    const state = playOnSelect ? 'on' : 'off';
+    const label = `Hear selected chord: ${state}`;
+
+    $('play-on-select').innerHTML = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">${icon}</svg>`;
+    $('play-on-select').setAttribute('aria-label', label);
+    $('play-on-select').setAttribute('aria-pressed', String(playOnSelect));
+    $('play-on-select').title = label;
+    $('play-on-select').classList.toggle('active', playOnSelect);
+  }
+
   function saveSettings() {
     try {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify({
         key: $('key').value,
         length: $('length').value,
         speed: $('speed').value,
-        playOnSelect: $('play-on-select').checked,
+        playOnSelect,
         checkAnswers: $('check-answers').value,
         autoNextCountdown: $('auto-next-countdown').value,
       }));
@@ -195,7 +210,7 @@
       const index = question.sequence.length;
       question.sequence.push(button.dataset.chord);
 
-      if ($('play-on-select').checked) playAnswerChord(index);
+      if (playOnSelect) playAnswerChord(index);
 
       renderBuilder();
       if (question.sequence.length === question.length) applyCheckPolicy();
@@ -478,7 +493,11 @@
   });
 
   $('speed').addEventListener('change', saveSettings);
-  $('play-on-select').addEventListener('change', saveSettings);
+  $('play-on-select').addEventListener('click', () => {
+    playOnSelect = !playOnSelect;
+    updatePlayOnSelectButton();
+    saveSettings();
+  });
   $('check-answers').addEventListener('change', () => {
     saveSettings();
     applyCheckPolicy();
@@ -515,5 +534,6 @@
   });
 
   loadSettings();
+  updatePlayOnSelectButton();
   newRound();
 })();

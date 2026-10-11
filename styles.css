@@ -234,6 +234,39 @@ h1 {
   color: #666b60;
 }
 
+.chord-audio-toggle {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  padding: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.chord-audio-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.chord-audio-toggle:hover {
+  background: var(--soft);
+  color: var(--ink);
+}
+
+.chord-audio-toggle.active {
+  background: #edf2e5;
+  color: var(--green);
+}
+
+.chord-audio-toggle.active:hover {
+  background: #e2ead9;
+  color: var(--green-dark);
+}
+
 .sequence {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -417,44 +450,6 @@ h1 {
   color: var(--ink);
   padding: 0 11px;
   font-size: 13px;
-}
-
-.setting-toggle {
-  display: flex !important;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin: 0 !important;
-  color: var(--muted) !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  cursor: pointer;
-}
-
-.setting-toggle input {
-  appearance: none;
-  width: 15px;
-  height: 15px;
-  flex: none;
-  margin: 0;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: #fffefa;
-  cursor: pointer;
-}
-
-.setting-toggle input:checked {
-  border-color: var(--green);
-  background-color: var(--green);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m3 8 3 3 7-7' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-size: 12px;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.setting-toggle input:focus-visible {
-  outline: 3px solid #95b87c;
-  outline-offset: 3px;
 }
 
 .progress-card {
