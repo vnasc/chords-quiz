@@ -42,6 +42,7 @@
         <div class="setting"><label for="key">Key</label><select id="key"><option value="random">Random</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>A</option><option>B</option></select></div>
         <div class="setting"><label for="length">Length</label><select id="length"><option value="3">3 chords</option><option value="4" selected>4 chords</option></select></div>
         <div class="setting"><label for="speed">Playback speed</label><select id="speed"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select></div>
+        <div class="setting"><label class="setting-toggle">Hear selected chord<input id="play-on-select" type="checkbox"></label></div>
       </section>
       <section class="side-card progress-card"><div class="progress-heading"><h2 class="side-title">Statistics</h2><button id="reset-progress" class="reset-progress" type="button">Reset</button></div><div class="progress-caption"><span>Accuracy</span><strong id="progress-text">— (0/0)</strong></div></section>
     </aside>
@@ -96,10 +97,11 @@
       if(['random',...Object.keys(roots)].includes(saved.key))$('key').value=saved.key;
       if(['3','4'].includes(String(saved.length)))$('length').value=String(saved.length);
       if(['slow','normal','fast'].includes(saved.speed))$('speed').value=saved.speed;
+      $('play-on-select').checked=saved.playOnSelect===true;
     }catch{}
   }
   function saveSettings(){
-    try{localStorage.setItem(SETTINGS_KEY,JSON.stringify({key:$('key').value,length:$('length').value,speed:$('speed').value}))}catch{}
+    try{localStorage.setItem(SETTINGS_KEY,JSON.stringify({key:$('key').value,length:$('length').value,speed:$('speed').value,playOnSelect:$('play-on-select').checked}))}catch{}
   }
   function newRound(){
     stopVisual();
@@ -132,7 +134,7 @@
       question.sequence.splice(index,1);renderBuilder();
     }));
     $('choices').innerHTML=chordDegrees.map(chord=>`<button class="chord-choice" type="button" data-chord="${chord}" aria-label="Add ${chord}" ${!question.hasPlayed||checked||sequence.length===length?'disabled':''}>${chord}</button>`).join('');
-    $('choices').querySelectorAll('.chord-choice:not(:disabled)').forEach(button=>button.addEventListener('click',()=>{question.sequence.push(button.dataset.chord);if(question.sequence.length===question.length)checkAnswer();else renderBuilder()}));
+    $('choices').querySelectorAll('.chord-choice:not(:disabled)').forEach(button=>button.addEventListener('click',()=>{const index=question.sequence.length;question.sequence.push(button.dataset.chord);if($('play-on-select').checked)playAnswerChord(index);if(question.sequence.length===question.length)checkAnswer();else renderBuilder()}));
   }
   function chordNotes(degree,keyMidi){const root=keyMidi+degreeSemitones[degree];return quality[degree]==='major'?[root,root+4,root+7]:[root,root+3,root+7]}
   function playAnswerChord(index){
@@ -183,6 +185,7 @@
   $('key').addEventListener('change',()=>{saveSettings();newRound()});
   $('length').addEventListener('change',()=>{saveSettings();newRound()});
   $('speed').addEventListener('change',saveSettings);
+  $('play-on-select').addEventListener('change',saveSettings);
   document.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName)&&!question.checked){e.preventDefault();question.sequence.pop();renderBuilder()}if((e.key===' '||e.key==='Enter')&&e.target===document.body){e.preventDefault();play()}});
   loadSettings();
   newRound();
