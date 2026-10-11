@@ -32,7 +32,7 @@
       <section class="play-zone" aria-label="Audio playback">
         <button id="play" class="play-button" type="button" aria-label="Play progression" title="Play progression"><span class="wave" id="wave" aria-hidden="true"></span></button><button class="next-button" id="next" type="button" aria-label="Next progression" title="Next progression" hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </section>
-      <div class="answer-header"><span class="eyebrow">PROGRESSION</span><span class="eyebrow" id="sequence-count"></span></div>
+      <div class="answer-header"><span class="eyebrow">PROGRESSION</span></div>
       <div class="sequence" id="sequence" aria-label="Your progression"></div>
       <div class="answer-header"><span class="eyebrow">CHORDS</span></div>
       <div class="chord-bank" id="choices" role="group" aria-label="Chord choices"></div>
@@ -117,7 +117,6 @@
   }
   function renderBuilder(){
     const {sequence,length,checked}=question;
-    $('sequence-count').textContent=`${sequence.length} / ${length}`;
     $('sequence').style.gridTemplateColumns=`repeat(${length},minmax(0,1fr))`;
     $('sequence').innerHTML=Array.from({length},(_,index)=>{
       const chord=sequence[index]||'';
