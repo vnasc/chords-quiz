@@ -43,7 +43,7 @@
         <div class="setting"><label for="length">Length</label><select id="length"><option value="3">3 chords</option><option value="4" selected>4 chords</option></select></div>
         <div class="setting"><label for="speed">Playback speed</label><select id="speed"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select></div>
       </section>
-      <section class="side-card progress-card"><div class="progress-heading"><h2 class="side-title">Progress</h2><button id="reset-progress" class="reset-progress" type="button">Reset</button></div><div class="progress-caption"><span>Accuracy</span><strong id="progress-text">—</strong></div><div class="progress-bar" role="progressbar" aria-label="Accuracy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-fill" id="progress-fill"></div></div><div class="progress-caption"><span id="correct-count">0 correct</span><span id="total-count">0 answered</span></div></section>
+      <section class="side-card progress-card"><div class="progress-heading"><h2 class="side-title">Statistics</h2><button id="reset-progress" class="reset-progress" type="button">Reset</button></div><div class="progress-caption"><span>Accuracy</span><strong id="progress-text">— (0/0)</strong></div></section>
     </aside>
   </div>
 </div>
@@ -175,8 +175,7 @@
     $('next').focus({preventScroll:true});updateStats();
   }
   function updateStats(){
-    $('correct-count').textContent=`${correct} correct`;$('total-count').textContent=`${answered} answered`;
-    const pct=answered?Math.round(correct/answered*100):0;$('progress-fill').style.width=`${pct}%`;$('progress-text').textContent=answered?`${pct}%`:'—';document.querySelector('[role="progressbar"]').setAttribute('aria-valuenow',pct)
+    const pct=answered?Math.round(correct/answered*100):0;$('progress-text').textContent=answered?`${pct}%`:'—'
   }
   $('play').addEventListener('click',play);
   $('reset-progress').addEventListener('click',()=>{if(!window.confirm('Reset progress?'))return;correct=0;answered=0;try{localStorage.removeItem(STATS_KEY);localStorage.removeItem(LEGACY_STATS_KEY)}catch{}updateStats()});
