@@ -178,12 +178,26 @@
 
       if ($('play-on-select').checked) playAnswerChord(index);
 
-      if (question.sequence.length === question.length) {
-        checkAnswer();
-      } else {
-        renderBuilder();
-      }
+      renderBuilder();
     }));
+
+    updateActionButton();
+  }
+
+  function updateActionButton() {
+    const isCheckAction = !question.checked;
+    const actionAvailable = question.checked || question.sequence.length === question.length;
+    const icon = isCheckAction
+      ? '<path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+      : '<path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+    const label = isCheckAction ? 'Check answer' : 'Next progression';
+
+    $('next').innerHTML = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">${icon}</svg>`;
+    $('next').setAttribute('aria-label', label);
+    $('next').title = label;
+    $('next').hidden = !actionAvailable;
+    $('next').classList.toggle('visible', actionAvailable);
+    $('next').classList.toggle('check-action', isCheckAction);
   }
 
   function chordNotes(degree, keyMidi) {
@@ -321,9 +335,6 @@
     } catch {}
 
     renderBuilder();
-
-    $('next').hidden = false;
-    $('next').classList.add('visible');
     $('next').focus({ preventScroll: true });
     updateStats();
   }
@@ -351,6 +362,11 @@
   });
 
   $('next').addEventListener('click', () => {
+    if (!question.checked) {
+      checkAnswer();
+      return;
+    }
+
     newRound();
     play();
   });

@@ -348,6 +348,18 @@ h1 {
   display: grid;
 }
 
+.next-button.check-action {
+  border-color: #829777;
+  background: #829777;
+  color: #fff;
+}
+
+.next-button.check-action:hover:not(:disabled) {
+  border-color: #718769;
+  background: #718769;
+  color: #fff;
+}
+
 .next-button svg {
   width: 18px;
   height: 18px;
