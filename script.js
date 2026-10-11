@@ -42,6 +42,8 @@
   let stepTimers = [];
   let countdownInterval;
   let countdown = null;
+  let checkCountdownInterval;
+  let checkCountdown = null;
 
   const SETTINGS_KEY = 'chord-quiz-settings-v1';
   const STATS_KEY = 'chord-quiz-progress-v1';
@@ -97,6 +99,10 @@
       if (['slow', 'normal', 'fast'].includes(saved.speed)) $('speed').value = saved.speed;
 
       $('play-on-select').checked = saved.playOnSelect === true;
+      if (['manual', 'immediate', '3', '5'].includes(saved.checkAnswers)) {
+        $('check-answers').value = saved.checkAnswers;
+      }
+
       const countdownSetting = String(saved.autoNextCountdown);
       if (['0', '1', '3', '5'].includes(countdownSetting)) {
         $('auto-next-countdown').value = countdownSetting;
@@ -113,6 +119,7 @@
         length: $('length').value,
         speed: $('speed').value,
         playOnSelect: $('play-on-select').checked,
+        checkAnswers: $('check-answers').value,
         autoNextCountdown: $('auto-next-countdown').value,
       }));
     } catch {}
@@ -120,6 +127,7 @@
 
   function newRound() {
     clearAutoNext();
+    clearAutoCheck();
     stopVisual();
 
     const length = Number($('length').value);
@@ -174,6 +182,7 @@
         playAnswerChord(index);
         return;
       }
+      clearAutoCheck();
       question.sequence.splice(index, 1);
       renderBuilder();
     }));
@@ -189,6 +198,7 @@
       if ($('play-on-select').checked) playAnswerChord(index);
 
       renderBuilder();
+      if (question.sequence.length === question.length) applyCheckPolicy();
     }));
 
     updateActionButton();
@@ -200,14 +210,17 @@
     const icon = isCheckAction
       ? '<path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
       : '<path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+    const activeCountdown = isCheckAction ? checkCountdown : countdown;
     const label = isCheckAction
-      ? 'Check answer'
+      ? checkCountdown === null
+        ? 'Check answer'
+        : `Check answer in ${checkCountdown} ${checkCountdown === 1 ? 'second' : 'seconds'}`
       : countdown === null
         ? 'Next progression'
         : `Next progression in ${countdown} ${countdown === 1 ? 'second' : 'seconds'}`;
 
-    $('next').innerHTML = countdown !== null && !isCheckAction
-      ? `<span class="next-countdown" aria-hidden="true">${countdown}</span>`
+    $('next').innerHTML = activeCountdown !== null
+      ? `<span class="next-countdown" aria-hidden="true">${activeCountdown}</span>`
       : `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">${icon}</svg>`;
     $('next').setAttribute('aria-label', label);
     $('next').title = label;
@@ -220,6 +233,47 @@
     clearInterval(countdownInterval);
     countdownInterval = undefined;
     countdown = null;
+  }
+
+  function clearAutoCheck() {
+    clearInterval(checkCountdownInterval);
+    checkCountdownInterval = undefined;
+    checkCountdown = null;
+  }
+
+  function startAutoCheck(seconds) {
+    clearAutoCheck();
+    checkCountdown = seconds;
+    updateActionButton();
+
+    checkCountdownInterval = setInterval(() => {
+      checkCountdown--;
+      if (checkCountdown === 0) {
+        clearAutoCheck();
+        checkAnswer();
+        return;
+      }
+      updateActionButton();
+    }, 1000);
+  }
+
+  function applyCheckPolicy() {
+    if (question.checked || question.sequence.length !== question.length) {
+      clearAutoCheck();
+      updateActionButton();
+      return;
+    }
+
+    const policy = $('check-answers').value;
+    if (policy === 'immediate') {
+      clearAutoCheck();
+      checkAnswer();
+    } else if (policy === 'manual') {
+      clearAutoCheck();
+      updateActionButton();
+    } else {
+      startAutoCheck(Number(policy));
+    }
   }
 
   function startAutoNext() {
@@ -363,6 +417,7 @@
   function checkAnswer() {
     if (!question || question.checked || question.sequence.length !== question.length) return;
 
+    clearAutoCheck();
     question.checked = true;
     answered++;
 
@@ -424,6 +479,10 @@
 
   $('speed').addEventListener('change', saveSettings);
   $('play-on-select').addEventListener('change', saveSettings);
+  $('check-answers').addEventListener('change', () => {
+    saveSettings();
+    applyCheckPolicy();
+  });
   $('auto-next-countdown').addEventListener('change', () => {
     saveSettings();
     if (!question.checked) return;
@@ -443,6 +502,7 @@
       !question.checked
     ) {
       event.preventDefault();
+      clearAutoCheck();
       question.sequence.pop();
 
       renderBuilder();
