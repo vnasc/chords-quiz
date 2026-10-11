@@ -248,6 +248,10 @@
     $('play').disabled = true;
     $('next').disabled = true;
 
+    $('choices').querySelectorAll('.chord-choice').forEach(button => {
+      button.disabled = true;
+    });
+
     progression.forEach((degree, index) => {
       const start = base + index * beat;
       const notes = chordNotes(degree, keyMidi);
@@ -297,6 +301,10 @@
       $('play').setAttribute('aria-label', 'Play progression');
     }
     if ($('next')) $('next').disabled = false;
+
+    $('choices').querySelectorAll('.chord-choice').forEach(button => {
+      button.disabled = false;
+    });
   }
 
   function checkAnswer() {
