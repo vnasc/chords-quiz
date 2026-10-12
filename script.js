@@ -248,6 +248,7 @@
     clearInterval(countdownInterval);
     countdownInterval = undefined;
     countdown = null;
+    $('play').disabled = false;
   }
 
   function clearAutoCheck() {
@@ -294,6 +295,7 @@
   function startAutoNext() {
     clearAutoNext();
     countdown = Number($('auto-next-countdown').value);
+    $('play').disabled = true;
     updateActionButton();
 
     countdownInterval = setInterval(() => {

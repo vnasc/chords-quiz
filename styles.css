@@ -147,8 +147,12 @@ h1 {
   transition: background 0.15s;
 }
 
-.play-button:hover {
+.play-button:hover:not(:disabled) {
   background: #e5ecdd;
+}
+
+.play-button:disabled {
+  cursor: default;
 }
 
 .play-button .wave {
