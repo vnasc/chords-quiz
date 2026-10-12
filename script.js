@@ -333,6 +333,22 @@
     ));
   }
 
+  function playAnswerFeedback(isCorrect) {
+    const ctx = getAudio();
+    const start = ctx.currentTime + 0.025;
+    const duration = 0.14;
+    const notes = isCorrect ? [659.25, 783.99] : [392, 311.13];
+
+    notes.forEach((frequency, index) => tone(
+      ctx,
+      frequency,
+      start + index * 0.11,
+      duration,
+      0.055,
+      'sine',
+    ));
+  }
+
   function getAudio() {
     if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -440,6 +456,7 @@
 
     const isCorrect = question.sequence.every((chord, index) => chord === question.correct[index]);
     if (isCorrect) correct++;
+    playAnswerFeedback(isCorrect);
 
     try {
       localStorage.setItem(STATS_KEY, JSON.stringify({ correct, answered }));
