@@ -7,6 +7,7 @@
 <title>Chord Quiz — identify progressions by ear</title>
 <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 <div class="shell">
   <div class="layout">
@@ -14,11 +15,13 @@
       <section class="play-zone" aria-label="Audio playback">
         <button id="play" class="play-button" type="button" aria-label="Play progression" title="Play progression"><span class="wave" id="wave" aria-hidden="true"></span></button><button class="next-button" id="next" type="button" aria-label="Next progression" title="Next progression" hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </section>
+
       <div class="answer-header"><span class="eyebrow">PROGRESSION</span></div>
       <div class="sequence" id="sequence" aria-label="Your progression"></div>
       <div class="answer-header"><span class="eyebrow">CHORDS</span><button id="play-on-select" class="chord-audio-toggle" type="button" aria-label="Hear selected chord: off" title="Hear selected chord: off" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m16 9 5 6m0-6-5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>
       <div class="chord-bank" id="choices" role="group" aria-label="Chord choices"></div>
     </main>
+
     <aside class="side-column" aria-label="Practice settings and progress">
       <section class="side-card"><h2 class="side-title">Settings</h2>
         <div class="setting"><label for="key">Key</label><select id="key"><option value="random">Random</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>A</option><option>B</option></select></div>
@@ -27,10 +30,12 @@
         <div class="setting"><label for="check-answers">Auto-check answer</label><select id="check-answers"><option value="manual">Off (press Check)</option><option value="immediate" selected>Immediately</option><option value="3">After 3 seconds</option><option value="5">After 5 seconds</option></select></div>
         <div class="setting"><label for="auto-next-countdown">Auto-next countdown</label><select id="auto-next-countdown"><option value="0">Off</option><option value="3" selected>3 seconds</option><option value="5">5 seconds</option></select></div>
       </section>
+
       <section class="side-card progress-card"><div class="progress-heading"><h2 class="side-title">Statistics</h2><button id="reset-progress" class="reset-progress" type="button">Reset</button></div><div class="progress-caption"><span>Accuracy</span><strong id="progress-text">— (0/0)</strong></div></section>
     </aside>
   </div>
 </div>
+
 <script src="script.js"></script>
 </body>
 </html>
