@@ -11,23 +11,23 @@
 <body>
 <div class="shell">
   <div class="layout">
-    <main class="main-card" aria-label="Chord progression ear training">
-      <section class="play-zone" aria-label="Audio playback">
+    <main class="main-card" aria-label="Chord progression ear training" data-i18n-aria="practice">
+      <section class="play-zone" aria-label="Audio playback" data-i18n-aria="playback">
         <button id="play" class="play-button" type="button" aria-label="Play progression" title="Play progression"><span class="wave" id="wave" aria-hidden="true"></span></button><button class="next-button" id="next" type="button" aria-label="Next progression" title="Next progression" hidden><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </section>
 
-      <div class="answer-header"><span class="eyebrow">PROGRESSION</span></div>
-      <div class="sequence" id="sequence" aria-label="Your progression"></div>
-      <div class="answer-header"><span class="eyebrow">CHORDS</span><button id="play-on-select" class="chord-audio-toggle" type="button" aria-label="Hear selected chord: off" title="Hear selected chord: off" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m16 9 5 6m0-6-5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>
-      <div class="chord-bank" id="choices" role="group" aria-label="Chord choices"></div>
+      <div class="answer-header"><span class="eyebrow" data-i18n="progression">PROGRESSION</span></div>
+      <div class="sequence" id="sequence" aria-label="Your progression" data-i18n-aria="yourProgression"></div>
+      <div class="answer-header"><span class="eyebrow" data-i18n="chords">CHORDS</span><button id="play-on-select" class="chord-audio-toggle" type="button" aria-label="Hear selected chord: off" title="Hear selected chord: off" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m16 9 5 6m0-6-5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>
+      <div class="chord-bank" id="choices" role="group" aria-label="Chord choices" data-i18n-aria="choices"></div>
     </main>
 
-    <aside class="side-column" aria-label="Practice settings and progress">
-      <section class="side-card" aria-label="Settings">
+    <aside class="side-column" aria-label="Practice settings and progress" data-i18n-aria="settingsProgress">
+      <section class="side-card" aria-label="Settings" data-i18n-aria="settings">
         <div class="setting">
-          <div class="setting-label" id="key-label">Key</div>
+          <div class="setting-label" id="key-label" data-i18n="key">Key</div>
           <div class="segmented key-options" id="key" role="group" aria-labelledby="key-label">
-            <button type="button" data-value="random" aria-pressed="true" aria-label="Random key" title="Random key">
+            <button type="button" data-value="random" aria-pressed="true" aria-label="Random key" title="Random key" data-i18n-aria="randomKey" data-i18n-title="randomKey">
               <svg class="dice-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="m12 2 9 5v10l-9 5-9-5V7l9-5Zm0 10L3 7m9 5 9-5m-9 5v10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                 <g fill="currentColor">
@@ -51,47 +51,55 @@
         </div>
 
         <div class="setting">
-          <div class="setting-label" id="length-label">Length</div>
+          <div class="setting-label" id="length-label" data-i18n="length">Length</div>
           <div class="segmented" id="length" role="group" aria-labelledby="length-label">
-            <button type="button" data-value="3" aria-pressed="false">3 chords</button>
-            <button type="button" data-value="4" aria-pressed="true">4 chords</button>
+            <button type="button" data-value="3" aria-pressed="false" data-i18n="chordCount" data-count="3">3 chords</button>
+            <button type="button" data-value="4" aria-pressed="true" data-i18n="chordCount" data-count="4">4 chords</button>
           </div>
         </div>
 
         <div class="setting">
-          <div class="setting-label" id="speed-label">Playback speed</div>
+          <div class="setting-label" id="speed-label" data-i18n="speed">Playback speed</div>
           <div class="segmented" id="speed" role="group" aria-labelledby="speed-label">
-            <button type="button" data-value="slow" aria-pressed="false">Slow</button>
-            <button type="button" data-value="normal" aria-pressed="true">Normal</button>
-            <button type="button" data-value="fast" aria-pressed="false">Fast</button>
+            <button type="button" data-value="slow" aria-pressed="false" data-i18n="slow">Slow</button>
+            <button type="button" data-value="normal" aria-pressed="true" data-i18n="normal">Normal</button>
+            <button type="button" data-value="fast" aria-pressed="false" data-i18n="fast">Fast</button>
           </div>
         </div>
 
         <div class="setting">
-          <div class="setting-label" id="check-answers-label">Auto-check answer</div>
+          <div class="setting-label" id="check-answers-label" data-i18n="autoCheck">Auto-check answer</div>
           <div class="segmented" id="check-answers" role="group" aria-labelledby="check-answers-label">
-            <button type="button" data-value="manual" aria-pressed="false" title="Off (press Check)">Off</button>
-            <button type="button" data-value="immediate" aria-pressed="true" title="Immediately">Now</button>
-            <button type="button" data-value="3" aria-pressed="false" aria-label="After 3 seconds">3 sec</button>
-            <button type="button" data-value="5" aria-pressed="false" aria-label="After 5 seconds">5 sec</button>
+            <button type="button" data-value="manual" aria-pressed="false" title="Off (press Check)" data-i18n="off" data-i18n-title="manualCheck">Off</button>
+            <button type="button" data-value="immediate" aria-pressed="true" title="Immediately" data-i18n="now" data-i18n-title="immediately">Now</button>
+            <button type="button" data-value="3" aria-pressed="false" aria-label="After 3 seconds" data-i18n="secondsShort" data-i18n-aria="afterSeconds" data-count="3">3 sec</button>
+            <button type="button" data-value="5" aria-pressed="false" aria-label="After 5 seconds" data-i18n="secondsShort" data-i18n-aria="afterSeconds" data-count="5">5 sec</button>
           </div>
         </div>
 
         <div class="setting">
-          <div class="setting-label" id="auto-next-countdown-label">Auto-next countdown</div>
+          <div class="setting-label" id="auto-next-countdown-label" data-i18n="autoNext">Auto-next countdown</div>
           <div class="segmented" id="auto-next-countdown" role="group" aria-labelledby="auto-next-countdown-label">
-            <button type="button" data-value="0" aria-pressed="false">Off</button>
-            <button type="button" data-value="3" aria-pressed="true" aria-label="3 seconds">3 sec</button>
-            <button type="button" data-value="5" aria-pressed="false" aria-label="5 seconds">5 sec</button>
+            <button type="button" data-value="0" aria-pressed="false" data-i18n="off">Off</button>
+            <button type="button" data-value="3" aria-pressed="true" aria-label="3 seconds" data-i18n="secondsShort" data-i18n-aria="seconds" data-count="3">3 sec</button>
+            <button type="button" data-value="5" aria-pressed="false" aria-label="5 seconds" data-i18n="secondsShort" data-i18n-aria="seconds" data-count="5">5 sec</button>
+          </div>
+        </div>
+        <div class="setting">
+          <div class="setting-label" data-i18n="language">Language</div>
+          <div class="language-switch" role="group" aria-label="Language" data-i18n-aria="language">
+            <button type="button" data-language="en" lang="en" aria-label="English" title="English" aria-pressed="true"><span aria-hidden="true">🇬🇧</span></button>
+            <button type="button" data-language="pt-BR" lang="pt-BR" aria-label="Português brasileiro" title="Português brasileiro" aria-pressed="false"><span aria-hidden="true">🇧🇷</span></button>
           </div>
         </div>
       </section>
 
-      <section class="side-card progress-card"><div class="progress-heading"><h2 class="side-title">Statistics</h2><button id="reset-progress" class="reset-progress" type="button">Reset</button></div><div class="progress-caption"><span>Accuracy</span><strong id="progress-text">— (0/0)</strong></div></section>
+      <section class="side-card progress-card"><div class="progress-heading"><h2 class="side-title" data-i18n="statistics">Statistics</h2><button id="reset-progress" class="reset-progress" type="button" data-i18n="reset">Reset</button></div><div class="progress-caption"><span data-i18n="accuracy">Accuracy</span><strong id="progress-text">— (0/0)</strong></div></section>
     </aside>
   </div>
 </div>
 
+<script src="i18n.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

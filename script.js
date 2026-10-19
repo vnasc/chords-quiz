@@ -34,6 +34,9 @@
   const $ = id => document.getElementById(id);
 
   let question;
+  let language = defaultLanguage();
+  const { t, renderLanguage } = createI18n(() => language);
+  let playbackIndex = null;
   let playOnSelect = false;
   let correct = 0;
   let answered = 0;
@@ -123,6 +126,8 @@
       const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY));
       if (!saved) return;
 
+      if (['en', 'pt-BR'].includes(saved.language)) language = saved.language;
+
       if (['random', ...Object.keys(roots)].includes(saved.key)) $('key').value = saved.key;
       if (['3', '4'].includes(String(saved.length))) $('length').value = String(saved.length);
       if (['slow', 'normal', 'fast'].includes(saved.speed)) $('speed').value = saved.speed;
@@ -147,8 +152,7 @@
     const icon = playOnSelect
       ? '<path d="M11 5 6 9H3v6h3l5 4V5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.5 8.5a5 5 0 0 1 0 7m3-10a9 9 0 0 1 0 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
       : '<path d="M11 5 6 9H3v6h3l5 4V5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="m16 9 5 6m0-6-5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>';
-    const state = playOnSelect ? 'on' : 'off';
-    const label = `Hear selected chord: ${state}`;
+    const label = t(playOnSelect ? 'hearOn' : 'hearOff');
 
     $('play-on-select').innerHTML = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">${icon}</svg>`;
     $('play-on-select').setAttribute('aria-label', label);
@@ -160,6 +164,7 @@
   function saveSettings() {
     try {
       localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+        language,
         key: $('key').value,
         length: $('length').value,
         speed: $('speed').value,
@@ -214,9 +219,9 @@
       const content = checked && !matches
         ? `<s>${chord}</s><span class="correction">${question.correct[index]}</span>`
         : chord;
-      const label = chord
-        ? `Position ${index + 1}: ${chord}${checked ? ', play selected chord' : ''}${checked && !matches ? `, correct chord ${question.correct[index]}` : ''}`
-        : `Position ${index + 1}: empty`;
+      const label = t('position', { index: index + 1, chord: chord || t('empty') })
+        + (chord && checked ? t('playSelected') : '')
+        + (checked && !matches ? t('correction', { chord: question.correct[index] }) : '');
 
       return `<button class="sequence-slot ${chord ? 'filled' : ''} ${resultClass}" type="button" data-slot="${index}" aria-label="${label}" ${!chord ? 'disabled' : ''}>${content}</button>`;
     }).join('');
@@ -235,7 +240,7 @@
     }));
 
     $('choices').innerHTML = chordDegrees.map((chord, index) =>
-      `<button class="chord-choice" type="button" data-chord="${chord}" aria-label="Add ${chord}" aria-keyshortcuts="${index + 1}" title="Add ${chord} (${index + 1})" ${!question.hasPlayed || checked || sequence.length === length ? 'disabled' : ''}>${chord}<span class="chord-shortcut" aria-hidden="true">${index + 1}</span></button>`
+      `<button class="chord-choice" type="button" data-chord="${chord}" aria-label="${t('add', { chord })}" aria-keyshortcuts="${index + 1}" title="${t('add', { chord })} (${index + 1})" ${playing || !question.hasPlayed || checked || sequence.length === length ? 'disabled' : ''}>${chord}<span class="chord-shortcut" aria-hidden="true">${index + 1}</span></button>`
     ).join('');
 
     $('choices').querySelectorAll('.chord-choice:not(:disabled)').forEach(button => button.addEventListener('click', () => {
@@ -260,11 +265,11 @@
     const activeCountdown = isCheckAction ? checkCountdown : countdown;
     const label = isCheckAction
       ? checkCountdown === null
-        ? 'Check answer'
-        : `Check answer in ${checkCountdown} ${checkCountdown === 1 ? 'second' : 'seconds'}`
+        ? t('check')
+        : t(checkCountdown === 1 ? 'checkInOne' : 'checkIn', { count: checkCountdown })
       : countdown === null
-        ? 'Next progression'
-        : `Next progression in ${countdown} ${countdown === 1 ? 'second' : 'seconds'}`;
+        ? t('next')
+        : t(countdown === 1 ? 'nextInOne' : 'nextIn', { count: countdown });
 
     $('next').innerHTML = activeCountdown !== null
       ? `<span class="next-countdown" aria-hidden="true">${activeCountdown}</span>`
@@ -524,7 +529,8 @@
 
     playing = true;
     wave.classList.add('playing');
-    $('play').setAttribute('aria-label', 'Playing progression');
+    playbackIndex = null;
+    updatePlaybackLabel();
     $('play').disabled = true;
     $('next').disabled = true;
 
@@ -546,7 +552,8 @@
           slot.classList.toggle('audio-current', slotIndex === index);
         });
 
-        $('play').setAttribute('aria-label', `Playing progression, chord ${index + 1} of ${progression.length}`);
+        playbackIndex = index;
+        updatePlaybackLabel();
       }, Math.max(0, (start - ctx.currentTime) * 1000)));
     });
 
@@ -560,8 +567,20 @@
     }, (progression.length * beat + 0.2) * 1000);
   }
 
+  function updatePlaybackLabel() {
+    const label = playing
+      ? playbackIndex === null
+        ? t('playing')
+        : t('playingChord', { index: playbackIndex + 1, count: question.length })
+      : t('play');
+
+    $('play').setAttribute('aria-label', label);
+    $('play').title = label;
+  }
+
   function stopVisual() {
     playing = false;
+    playbackIndex = null;
 
     clearTimeout(playTimer);
     stepTimers.forEach(clearTimeout);
@@ -571,7 +590,7 @@
 
     if ($('play')) {
       $('play').disabled = false;
-      $('play').setAttribute('aria-label', 'Play progression');
+      updatePlaybackLabel();
     }
 
     if ($('next')) $('next').disabled = false;
@@ -606,13 +625,15 @@
   function updateStats() {
     const pct = answered ? Math.round(correct / answered * 100) : 0;
 
-    $('progress-text').textContent = answered ? `${pct}%` : '—';
+    $('progress-text').textContent = answered
+      ? new Intl.NumberFormat(language, { style: 'percent' }).format(pct / 100)
+      : '—';
   }
 
   $('play').addEventListener('click', play);
 
   $('reset-progress').addEventListener('click', () => {
-    if (!window.confirm('Reset progress?')) return;
+    if (!window.confirm(t('resetConfirm'))) return;
 
     correct = 0;
     answered = 0;
@@ -702,7 +723,25 @@
     }
   });
 
+  document.querySelector('.language-switch').addEventListener('click', event => {
+    const button = event.target.closest('[data-language]');
+    if (!button || button.dataset.language === language) return;
+
+    language = button.dataset.language;
+    saveSettings();
+    renderLanguage();
+    updatePlayOnSelectButton();
+    renderBuilder();
+    updatePlaybackLabel();
+    updateStats();
+
+    if (playing && playbackIndex !== null) {
+      $('sequence').children[playbackIndex].classList.add('audio-current');
+    }
+  });
+
   loadSettings();
+  renderLanguage();
   updatePlayOnSelectButton();
   newRound();
 })();

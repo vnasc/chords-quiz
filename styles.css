@@ -73,6 +73,36 @@ button:focus-visible {
   padding: 23px 21px;
 }
 
+.language-switch {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--soft);
+}
+
+.language-switch button {
+  flex: 1;
+  min-height: 32px;
+  padding: 2px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.language-switch button:hover {
+  background: var(--card);
+}
+
+.language-switch button.active {
+  border-color: var(--line);
+  background: var(--card);
+  box-shadow: 0 1px 4px #0000000c;
+}
+
 .eyebrow {
   color: var(--muted);
   font-size: 11px;
