@@ -192,36 +192,14 @@ h1 {
 }
 
 .wave.playing i {
-  -webkit-animation: pulse 0.55s ease-in-out infinite alternate;
-  animation: pulse 0.55s ease-in-out infinite alternate;
-  -webkit-animation-delay: var(--d);
+  animation: pulse 0.65s ease-in-out infinite alternate;
   animation-delay: var(--d);
-  will-change: transform, background-color, opacity;
-}
-
-@-webkit-keyframes pulse {
-  from {
-    -webkit-transform: scaleY(0.22);
-    opacity: 0.58;
-  }
-
-  to {
-    -webkit-transform: scaleY(1.12);
-    background: #f1b185;
-    opacity: 1;
-  }
 }
 
 @keyframes pulse {
-  from {
-    transform: scaleY(0.22);
-    opacity: 0.58;
-  }
-
   to {
-    transform: scaleY(1.12);
+    transform: scaleY(1.05);
     background: #f1b185;
-    opacity: 1;
   }
 }
 
@@ -633,13 +611,5 @@ h1 {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition: none !important;
-  }
-
-  .wave.playing i {
-    animation: none !important;
-    -webkit-animation: none !important;
-    transform: scaleY(1.12);
-    background: #f1b185;
-    opacity: 1;
   }
 }
