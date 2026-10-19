@@ -27,7 +27,19 @@
         <div class="setting">
           <div class="setting-label" id="key-label">Key</div>
           <div class="segmented key-options" id="key" role="group" aria-labelledby="key-label">
-            <button type="button" data-value="random" aria-pressed="true">Random</button>
+            <button type="button" data-value="random" aria-pressed="true" aria-label="Random key" title="Random key">
+              <svg class="dice-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="m12 2 9 5v10l-9 5-9-5V7l9-5Zm0 10L3 7m9 5 9-5m-9 5v10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <g fill="currentColor">
+                  <ellipse cx="12" cy="7" rx="1.5" ry="0.85"/>
+                  <ellipse cx="6.5" cy="11" rx="0.85" ry="1.2" transform="rotate(-25 6.5 11)"/>
+                  <ellipse cx="9" cy="17" rx="0.85" ry="1.2" transform="rotate(-25 9 17)"/>
+                  <ellipse cx="18.5" cy="10.5" rx="0.85" ry="1.2" transform="rotate(25 18.5 10.5)"/>
+                  <ellipse cx="16.5" cy="14.5" rx="0.85" ry="1.2" transform="rotate(25 16.5 14.5)"/>
+                  <ellipse cx="14.5" cy="18.5" rx="0.85" ry="1.2" transform="rotate(25 14.5 18.5)"/>
+                </g>
+              </svg>
+            </button>
             <button type="button" data-value="C" aria-pressed="false">C</button>
             <button type="button" data-value="D" aria-pressed="false">D</button>
             <button type="button" data-value="E" aria-pressed="false">E</button>

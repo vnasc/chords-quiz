@@ -483,6 +483,13 @@ h1 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.dice-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin: auto;
+}
+
 .progress-card {
   padding: 20px 21px;
 }
