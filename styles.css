@@ -428,7 +428,7 @@ h1 {
 
 .setting {
   display: block;
-  margin-bottom: 17px;
+  margin-bottom: 21px;
 }
 
 .setting:last-child {
@@ -437,10 +437,12 @@ h1 {
 
 .setting-label {
   display: block;
-  margin: 0 0 7px;
+  margin: 0 0 10px;
   color: var(--muted);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .segmented {
