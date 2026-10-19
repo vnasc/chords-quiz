@@ -59,6 +59,14 @@
         </div>
 
         <div class="setting">
+          <div class="setting-label" id="register-label" data-i18n="register">Chord register</div>
+          <div class="segmented" id="register" role="group" aria-labelledby="register-label">
+            <button type="button" data-value="fixed" aria-pressed="true" data-i18n="fixedRegister" data-i18n-title="fixedRegisterHelp" title="Higher degrees always have higher roots">Fixed</button>
+            <button type="button" data-value="varied" aria-pressed="false" data-i18n="variedRegister" data-i18n-title="variedRegisterHelp" title="Randomly shift each chord down an octave; replays stay the same">Varied</button>
+          </div>
+        </div>
+
+        <div class="setting">
           <div class="setting-label" id="speed-label" data-i18n="speed">Speed</div>
           <div class="segmented" id="speed" role="group" aria-labelledby="speed-label">
             <button type="button" data-value="slow" aria-pressed="false" data-i18n="slow">Slow</button>

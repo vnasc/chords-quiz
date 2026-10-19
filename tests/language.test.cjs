@@ -12,7 +12,7 @@ function loadApp(saved, navigator = { language: 'en-US' }) {
   function element(id) {
     if (!elements.has(id)) {
       elements.set(id, {
-        value: { key: 'random', length: '4', speed: 'normal', 'check-answers': 'manual', 'auto-next-countdown': '0' }[id],
+        value: { key: 'random', length: '4', speed: 'normal', register: 'fixed', 'check-answers': 'manual', 'auto-next-countdown': '0' }[id],
         style: { setProperty() {} },
         children: [],
         handlers: {},
@@ -52,7 +52,7 @@ function loadApp(saved, navigator = { language: 'en-US' }) {
     let source = readFileSync(join(__dirname, '..', file), 'utf8');
 
     if (file === 'script.js') {
-      source = source.replace(/\}\)\(\);\s*$/, 'globalThis.api = { get language() { return language; }, get question() { return question; }, startAutoCheck, startAutoNext };\n})();');
+      source = source.replace(/\}\)\(\);\s*$/, 'globalThis.api = { get language() { return language; }, get question() { return question; }, startAutoCheck, startAutoNext, newRound, chordNotes };\n})();');
     }
 
     vm.runInContext(source, context);
@@ -64,6 +64,45 @@ function loadApp(saved, navigator = { language: 'en-US' }) {
 
   return { context, api: context.api, element, timers, switchLanguage, get persisted() { return persisted; } };
 }
+
+test('register preference is validated, restored, and saved when changed', () => {
+  for (const [saved, expected] of [[{}, 'fixed'], [{ register: 'invalid' }, 'fixed'], [{ register: 'varied' }, 'varied']]) {
+    assert.equal(loadApp(saved).element('register').value, expected);
+  }
+
+  const app = loadApp({});
+  const previous = app.api.question;
+  app.element('register').value = 'varied';
+  app.element('register').handlers.change();
+  assert.equal(app.persisted.register, 'varied');
+  assert.notEqual(app.api.question, previous);
+});
+
+test('varied register chooses octave shifts per degree and preserves chord quality', () => {
+  const app = loadApp({ key: 'C', register: 'varied' });
+  vm.runInContext('Math.random = (() => { let i = 0; return () => i++ % 2 ? 0.9 : 0.1; })()', app.context);
+  app.api.newRound();
+  const offsets = { ...app.api.question.octaveOffsets };
+  assert.deepEqual(offsets, { I: -12, ii: 0, iii: -12, IV: 0, V: -12, vi: 0 });
+  const repeated = ['I', 'V', 'I', 'V'].map(degree =>
+    Array.from(app.api.chordNotes(degree, 48, app.api.question.octaveOffsets[degree]))
+  );
+  assert.deepEqual(repeated[0], repeated[2]);
+  assert.deepEqual(repeated[1], repeated[3]);
+
+  for (const degree of ['I', 'ii', 'iii', 'IV', 'V', 'vi']) {
+    const fixed = Array.from(app.api.chordNotes(degree, 48));
+    const shifted = Array.from(app.api.chordNotes(degree, 48, -12));
+    assert.deepEqual(shifted, fixed.map(note => note - 12));
+  }
+
+  app.switchLanguage('pt-BR');
+  assert.deepEqual({ ...app.api.question.octaveOffsets }, offsets);
+
+  app.element('register').value = 'fixed';
+  app.element('register').handlers.change();
+  assert.deepEqual({ ...app.api.question.octaveOffsets }, { I: 0, ii: 0, iii: 0, IV: 0, V: 0, vi: 0 });
+});
 
 test('saved language overrides browser language and invalid preferences use the browser default', () => {
   assert.equal(loadApp({ language: 'en' }, { language: 'pt-BR' }).api.language, 'en');

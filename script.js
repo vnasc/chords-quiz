@@ -131,6 +131,7 @@
       if (['random', ...Object.keys(roots)].includes(saved.key)) $('key').value = saved.key;
       if (['3', '4'].includes(String(saved.length))) $('length').value = String(saved.length);
       if (['slow', 'normal', 'fast'].includes(saved.speed)) $('speed').value = saved.speed;
+      if (['fixed', 'varied'].includes(saved.register)) $('register').value = saved.register;
 
       playOnSelect = saved.playOnSelect === true;
 
@@ -168,6 +169,7 @@
         key: $('key').value,
         length: $('length').value,
         speed: $('speed').value,
+        register: $('register').value,
         playOnSelect,
         checkAnswers: $('check-answers').value,
         autoNextCountdown: $('auto-next-countdown').value,
@@ -195,6 +197,10 @@
     question = {
       length,
       keyName,
+      octaveOffsets: Object.fromEntries(chordDegrees.map(degree => [
+        degree,
+        $('register').value === 'varied' && Math.random() < 0.5 ? -12 : 0,
+      ])),
       correct: pool[Math.floor(Math.random() * pool.length)],
       sequence: [],
       checked: false,
@@ -353,14 +359,15 @@
     }, 1000);
   }
 
-  function chordNotes(degree, keyMidi) {
-    const root = keyMidi + degreeSemitones[degree];
+  function chordNotes(degree, keyMidi, octaveOffset = 0) {
+    const root = keyMidi + degreeSemitones[degree] + octaveOffset;
     return quality[degree] === 'major' ? [root, root + 4, root + 7] : [root, root + 3, root + 7];
   }
 
   function playAnswerChord(index) {
     const ctx = getAudio();
-    const notes = chordNotes(question.sequence[index], 48 + roots[question.keyName]);
+    const degree = question.sequence[index];
+    const notes = chordNotes(degree, 48 + roots[question.keyName], question.octaveOffsets[degree]);
     const start = ctx.currentTime + 0.025;
     const duration = 0.8;
 
@@ -540,7 +547,7 @@
 
     progression.forEach((degree, index) => {
       const start = base + index * beat;
-      const notes = chordNotes(degree, keyMidi);
+      const notes = chordNotes(degree, keyMidi, question.octaveOffsets[degree]);
 
       playChord(ctx, notes, start, duration);
 
@@ -665,6 +672,11 @@
   });
 
   $('speed').addEventListener('change', saveSettings);
+
+  $('register').addEventListener('change', () => {
+    saveSettings();
+    newRound();
+  });
 
   $('play-on-select').addEventListener('click', () => {
     playOnSelect = !playOnSelect;
