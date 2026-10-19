@@ -322,6 +322,7 @@
     } else if (policy === 'manual') {
       clearAutoCheck();
       updateActionButton();
+      $('next').focus({ preventScroll: true });
     } else {
       startAutoCheck(Number(policy));
     }
