@@ -74,6 +74,7 @@
   answered = Number(stats.answered) || 0;
 
   const wave = $('wave');
+
   for (let i = 0; i < 21; i++) {
     const bar = document.createElement('i');
     bar.style.setProperty('--h', `${6 + Math.abs(Math.sin(i * 1.71)) * 72}px`);
@@ -83,10 +84,12 @@
 
   function shuffle(items) {
     const a = [...items];
+
     for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [a[i], a[j]] = [a[j], a[i]];
     }
+
     return a;
   }
 
@@ -97,6 +100,7 @@
       get() {
         return group.querySelector('[aria-pressed="true"]').dataset.value;
       },
+
       set(value) {
         group.querySelectorAll('button').forEach(button => {
           button.setAttribute('aria-pressed', String(button.dataset.value === value));
@@ -123,11 +127,13 @@
       if (['slow', 'normal', 'fast'].includes(saved.speed)) $('speed').value = saved.speed;
 
       playOnSelect = saved.playOnSelect === true;
+
       if (['manual', 'immediate', '3', '5'].includes(saved.checkAnswers)) {
         $('check-answers').value = saved.checkAnswers;
       }
 
       const countdownSetting = String(saved.autoNextCountdown);
+
       if (['0', '3', '5'].includes(countdownSetting)) {
         $('auto-next-countdown').value = countdownSetting;
       } else if (countdownSetting === '1' || saved.autoNextCountdown === true) {
@@ -188,6 +194,7 @@
       checked: false,
       hasPlayed: false,
     };
+
     $('next').hidden = true;
     $('next').classList.remove('visible');
 
@@ -220,6 +227,7 @@
         playAnswerChord(index);
         return;
       }
+
       clearAutoCheck();
       question.sequence.splice(index, 1);
       renderBuilder();
@@ -287,11 +295,13 @@
 
     checkCountdownInterval = setInterval(() => {
       checkCountdown--;
+
       if (checkCountdown === 0) {
         clearAutoCheck();
         checkAnswer();
         return;
       }
+
       updateActionButton();
     }, 1000);
   }
@@ -304,6 +314,7 @@
     }
 
     const policy = $('check-answers').value;
+
     if (policy === 'immediate') {
       clearAutoCheck();
       checkAnswer();
@@ -323,12 +334,14 @@
 
     countdownInterval = setInterval(() => {
       countdown--;
+
       if (countdown === 0) {
         clearAutoNext();
         newRound();
         play();
         return;
       }
+
       updateActionButton();
     }, 1000);
   }
@@ -350,6 +363,7 @@
   function playChord(ctx, notes, start, duration) {
     // Root in the bass plus a gently strummed triad above it.
     chordTone(ctx, notes[0] - 12, start, duration, 0.16);
+
     notes.forEach((note, index) => {
       chordTone(ctx, note + 12, start + index * 0.018, duration, 0.075);
     });
@@ -357,6 +371,7 @@
 
   function chordTone(ctx, midi, start, duration, volume) {
     const frequency = 440 * Math.pow(2, (midi - 69) / 12);
+
     // Like interval-quiz: a clear fundamental and softer, shorter overtones.
     const partials = [
       { harmonic: 1, level: 1, decay: 1 },
@@ -374,9 +389,11 @@
       osc.frequency.value = frequency * harmonic;
       gain.gain.setValueAtTime(0.0001, start);
       gain.gain.exponentialRampToValueAtTime(volume * level, start + 0.015);
+
       if (harmonic === 1) {
         gain.gain.exponentialRampToValueAtTime(volume * 0.3, start + duration * 0.75);
       }
+
       gain.gain.exponentialRampToValueAtTime(0.0001, end);
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -454,9 +471,11 @@
       const playbackQuestion = question;
       stepTimers.push(setTimeout(() => {
         if (question !== playbackQuestion || !playing) return;
+
         Array.from($('sequence').children).forEach((slot, slotIndex) => {
           slot.classList.toggle('audio-current', slotIndex === index);
         });
+
         $('play').setAttribute('aria-label', `Playing progression, chord ${index + 1} of ${progression.length}`);
       }, Math.max(0, (start - ctx.currentTime) * 1000)));
     });
@@ -484,6 +503,7 @@
       $('play').disabled = false;
       $('play').setAttribute('aria-label', 'Play progression');
     }
+
     if ($('next')) $('next').disabled = false;
 
     $('choices').querySelectorAll('.chord-choice').forEach(button => {
@@ -556,15 +576,18 @@
   });
 
   $('speed').addEventListener('change', saveSettings);
+
   $('play-on-select').addEventListener('click', () => {
     playOnSelect = !playOnSelect;
     updatePlayOnSelectButton();
     saveSettings();
   });
+
   $('check-answers').addEventListener('change', () => {
     saveSettings();
     applyCheckPolicy();
   });
+
   $('auto-next-countdown').addEventListener('change', () => {
     saveSettings();
     if (!question.checked) return;
@@ -589,6 +612,7 @@
 
       renderBuilder();
     }
+
     if ((event.key === ' ' || event.key === 'Enter') && event.target === document.body) {
       event.preventDefault();
 
