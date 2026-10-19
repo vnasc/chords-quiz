@@ -49,7 +49,6 @@ const TRANSLATIONS = {
     playSelected: ', play selected chord',
     correction: ', correct chord {chord}',
     add: 'Add {chord}',
-    resetConfirm: 'Reset progress?',
   },
   'pt-BR': {
     title: 'Quiz de Acordes — identifique progressões de ouvido',
@@ -99,7 +98,6 @@ const TRANSLATIONS = {
     playSelected: ', reproduzir acorde selecionado',
     correction: ', acorde correto {chord}',
     add: 'Adicionar {chord}',
-    resetConfirm: 'Zerar progresso?',
   },
 };
 

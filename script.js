@@ -633,8 +633,6 @@
   $('play').addEventListener('click', play);
 
   $('reset-progress').addEventListener('click', () => {
-    if (!window.confirm(t('resetConfirm'))) return;
-
     correct = 0;
     answered = 0;
 
