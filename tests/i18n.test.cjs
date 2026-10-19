@@ -53,6 +53,21 @@ test('browser language detection matches interval-quiz', () => {
   assert.equal(defaultLanguage(), 'en');
 });
 
+test('option labels are compact with descriptive accessible chord counts', () => {
+  const context = load();
+  const { t } = context.api;
+
+  for (const language of ['en', 'pt-BR']) {
+    context.language = language;
+    assert.equal(t('chordCountShort', { count: 3 }), '3');
+    assert.equal(t('chordCountShort', { count: 4 }), '4');
+    assert.equal(t('secondsShort', { count: 3 }), '3 s');
+    assert.equal(t('secondsShort', { count: 5 }), '5 s');
+    assert.equal(t('now'), language === 'en' ? 'Instant' : 'Imediata');
+    assert.equal(t('chordCount', { count: 4 }), language === 'en' ? '4 chords' : '4 acordes');
+  }
+});
+
 test('dynamic text interpolates chord positions, playback, and countdowns', () => {
   const context = load();
   const { t } = context.api;
