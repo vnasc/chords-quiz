@@ -235,7 +235,7 @@
     }));
 
     $('choices').innerHTML = chordDegrees.map((chord, index) =>
-      `<button class="chord-choice" type="button" data-chord="${chord}" aria-label="Add ${chord}" aria-keyshortcuts="${index + 1}" title="Add ${chord} (${index + 1})" ${!question.hasPlayed || checked || sequence.length === length ? 'disabled' : ''}>${chord}</button>`
+      `<button class="chord-choice" type="button" data-chord="${chord}" aria-label="Add ${chord}" aria-keyshortcuts="${index + 1}" title="Add ${chord} (${index + 1})" ${!question.hasPlayed || checked || sequence.length === length ? 'disabled' : ''}>${chord}<span class="chord-shortcut" aria-hidden="true">${index + 1}</span></button>`
     ).join('');
 
     $('choices').querySelectorAll('.chord-choice:not(:disabled)').forEach(button => button.addEventListener('click', () => {

@@ -319,6 +319,7 @@ h1 {
 }
 
 .chord-choice {
+  position: relative;
   min-height: 57px;
   border: 1px solid var(--line);
   border-radius: 11px;
@@ -326,6 +327,17 @@ h1 {
   color: var(--ink);
   font: 600 20px ui-serif, Georgia, serif;
   transition: 0.15s;
+}
+
+.chord-shortcut {
+  position: absolute;
+  top: 5px;
+  right: 7px;
+  color: var(--ink);
+  opacity: 0.4;
+  font: 400 10px system-ui, sans-serif;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .chord-choice:hover:not(:disabled) {
