@@ -90,6 +90,29 @@
     return a;
   }
 
+  // Keep each segmented group's value and pressed state in sync, including
+  // settings restored from storage before the first round.
+  document.querySelectorAll('.segmented').forEach(group => {
+    Object.defineProperty(group, 'value', {
+      get() {
+        return group.querySelector('[aria-pressed="true"]').dataset.value;
+      },
+      set(value) {
+        group.querySelectorAll('button').forEach(button => {
+          button.setAttribute('aria-pressed', String(button.dataset.value === value));
+        });
+      },
+    });
+
+    group.addEventListener('click', event => {
+      const button = event.target.closest('button[data-value]');
+      if (!button || group.value === button.dataset.value) return;
+
+      group.value = button.dataset.value;
+      group.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  });
+
   function loadSettings() {
     try {
       const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY));
