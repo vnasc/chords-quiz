@@ -39,6 +39,7 @@
   let answered = 0;
   let playing = false;
   let audioContext;
+  let audioGraph;
   let playTimer;
   let stepTimers = [];
   let countdownInterval;
@@ -365,12 +366,23 @@
     chordTone(ctx, notes[0] - 12, start, duration, 0.16);
 
     notes.forEach((note, index) => {
-      chordTone(ctx, note + 12, start + index * 0.018, duration, 0.075);
+      chordTone(ctx, note + 12, start + index * 0.018, duration, 0.075, (index - 1) * 0.25, true);
     });
   }
 
-  function chordTone(ctx, midi, start, duration, volume) {
+  function chordTone(ctx, midi, start, duration, volume, pan = 0, layered = false) {
     const frequency = 440 * Math.pow(2, (midi - 69) / 12);
+    const output = ctx.createStereoPanner();
+    output.pan.value = pan;
+    output.connect(audioGraph.master);
+
+    if (layered) output.connect(audioGraph.reverbSend);
+
+    // Split the existing level between layers rather than increasing loudness.
+    const voices = layered
+      ? [{ cents: 0, level: 0.6 }, { cents: -4, level: 0.2 }, { cents: 4, level: 0.2 }]
+      : [{ cents: 0, level: 1 }];
+    let activePartials = 0;
 
     // Like interval-quiz: a clear fundamental and softer, shorter overtones.
     const partials = [
@@ -380,27 +392,42 @@
       { harmonic: 4, level: 0.067, decay: 0.36 },
     ];
 
-    partials.forEach(({ harmonic, level, decay }) => {
-      if (frequency * harmonic >= ctx.sampleRate / 2) return;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const end = start + duration * decay;
-      osc.type = 'sine';
-      osc.frequency.value = frequency * harmonic;
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(volume * level, start + 0.015);
+    voices.forEach(voice => {
+      partials.forEach(({ harmonic, level, decay }) => {
+        if (frequency * harmonic * Math.pow(2, voice.cents / 1200) >= ctx.sampleRate / 2) return;
 
-      if (harmonic === 1) {
-        gain.gain.exponentialRampToValueAtTime(volume * 0.3, start + duration * 0.75);
-      }
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const end = start + duration * decay;
+        const peak = volume * level * voice.level;
+        osc.type = 'sine';
+        osc.frequency.value = frequency * harmonic;
+        osc.detune.value = voice.cents;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(peak, start + 0.015);
 
-      gain.gain.exponentialRampToValueAtTime(0.0001, end);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
-      osc.start(start);
-      osc.stop(end + 0.03);
+        if (harmonic === 1) {
+          gain.gain.exponentialRampToValueAtTime(peak * 0.3, start + duration * 0.75);
+        }
+
+        gain.gain.exponentialRampToValueAtTime(0.0001, end);
+        osc.connect(gain);
+        gain.connect(output);
+        activePartials++;
+
+        osc.onended = () => {
+          osc.disconnect();
+          gain.disconnect();
+
+          if (--activePartials === 0) output.disconnect();
+        };
+
+        osc.start(start);
+        osc.stop(end + 0.03);
+      });
     });
+
+    if (activePartials === 0) output.disconnect();
   }
 
   function playAnswerFeedback(isCorrect) {
@@ -419,8 +446,49 @@
     ));
   }
 
+  function createAudioGraph(ctx) {
+    const master = ctx.createGain();
+    master.gain.value = 0.8;
+    master.connect(ctx.destination);
+
+    // Generate a short stereo room response once; no samples or downloads.
+    const seconds = 0.9;
+    const impulse = ctx.createBuffer(2, Math.ceil(ctx.sampleRate * seconds), ctx.sampleRate);
+
+    for (let channel = 0; channel < impulse.numberOfChannels; channel++) {
+      const data = impulse.getChannelData(channel);
+
+      for (let i = 0; i < data.length; i++) {
+        const time = i / ctx.sampleRate;
+        const attack = Math.min(1, time / 0.012);
+        data[i] = (Math.random() * 2 - 1) * attack * Math.exp(-time * 7 / seconds);
+      }
+    }
+
+    const reverbSend = ctx.createGain();
+    reverbSend.gain.value = 0.12;
+    const lowCut = ctx.createBiquadFilter();
+    lowCut.type = 'highpass';
+    lowCut.frequency.value = 180;
+    const highCut = ctx.createBiquadFilter();
+    highCut.type = 'lowpass';
+    highCut.frequency.value = 2400;
+    const reverb = ctx.createConvolver();
+    reverb.buffer = impulse;
+
+    reverbSend.connect(lowCut);
+    lowCut.connect(highCut);
+    highCut.connect(reverb);
+    reverb.connect(master);
+
+    return { master, reverbSend };
+  }
+
   function getAudio() {
-    if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      audioGraph = createAudioGraph(audioContext);
+    }
 
     if (audioContext.state === 'suspended') audioContext.resume();
     return audioContext;
@@ -436,7 +504,8 @@
     gain.gain.exponentialRampToValueAtTime(volume, start + 0.025);
     gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
     osc.connect(gain);
-    gain.connect(ctx.destination);
+    gain.connect(audioGraph.master);
+    osc.onended = () => { osc.disconnect(); gain.disconnect(); };
     osc.start(start);
     osc.stop(start + duration + 0.03);
   }
