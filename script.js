@@ -234,8 +234,8 @@
       renderBuilder();
     }));
 
-    $('choices').innerHTML = chordDegrees.map(chord =>
-      `<button class="chord-choice" type="button" data-chord="${chord}" aria-label="Add ${chord}" ${!question.hasPlayed || checked || sequence.length === length ? 'disabled' : ''}>${chord}</button>`
+    $('choices').innerHTML = chordDegrees.map((chord, index) =>
+      `<button class="chord-choice" type="button" data-chord="${chord}" aria-label="Add ${chord}" aria-keyshortcuts="${index + 1}" title="Add ${chord} (${index + 1})" ${!question.hasPlayed || checked || sequence.length === length ? 'disabled' : ''}>${chord}</button>`
     ).join('');
 
     $('choices').querySelectorAll('.chord-choice:not(:disabled)').forEach(button => button.addEventListener('click', () => {
@@ -671,15 +671,27 @@
 
   document.addEventListener('keydown', event => {
     if (
-      event.key === 'Backspace' &&
-      !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName) &&
-      !question.checked
-    ) {
-      event.preventDefault();
-      clearAutoCheck();
-      question.sequence.pop();
+      event.defaultPrevented || event.isComposing || event.repeat ||
+      event.ctrlKey || event.metaKey || event.altKey ||
+      ['INPUT', 'SELECT', 'TEXTAREA'].includes(event.target.tagName) ||
+      event.target.isContentEditable
+    ) return;
 
-      renderBuilder();
+    if (/^[1-6]$/.test(event.key)) {
+      event.preventDefault();
+      $('choices').querySelectorAll('.chord-choice')[Number(event.key) - 1].click();
+      return;
+    }
+
+    if (event.key === 'Backspace' || event.key === 'Delete') {
+      event.preventDefault();
+
+      if (!question.checked && question.sequence.length) {
+        const index = question.sequence.length - 1;
+        $('sequence').querySelectorAll('.sequence-slot')[index].click();
+      }
+
+      return;
     }
 
     if ((event.key === ' ' || event.key === 'Enter') && event.target === document.body) {
