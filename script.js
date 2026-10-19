@@ -344,16 +344,46 @@
     const start = ctx.currentTime + 0.025;
     const duration = 0.8;
 
-    tone(ctx, 440 * Math.pow(2, (notes[0] - 12 - 69) / 12), start, duration, 0.16, 'sine');
+    playChord(ctx, notes, start, duration);
+  }
 
-    notes.forEach((note, j) => tone(
-      ctx,
-      440 * Math.pow(2, (note + 12 - 69) / 12),
-      start + j * 0.018,
-      duration,
-      0.075,
-      j === 0 ? 'triangle' : 'sine',
-    ));
+  function playChord(ctx, notes, start, duration) {
+    // Root in the bass plus a gently strummed triad above it.
+    chordTone(ctx, notes[0] - 12, start, duration, 0.16);
+    notes.forEach((note, index) => {
+      chordTone(ctx, note + 12, start + index * 0.018, duration, 0.075);
+    });
+  }
+
+  function chordTone(ctx, midi, start, duration, volume) {
+    const frequency = 440 * Math.pow(2, (midi - 69) / 12);
+    // Like interval-quiz: a clear fundamental and softer, shorter overtones.
+    const partials = [
+      { harmonic: 1, level: 1, decay: 1 },
+      { harmonic: 2, level: 0.29, decay: 0.7 },
+      { harmonic: 3, level: 0.15, decay: 0.5 },
+      { harmonic: 4, level: 0.067, decay: 0.36 },
+    ];
+
+    partials.forEach(({ harmonic, level, decay }) => {
+      if (frequency * harmonic >= ctx.sampleRate / 2) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const end = start + duration * decay;
+      osc.type = 'sine';
+      osc.frequency.value = frequency * harmonic;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume * level, start + 0.015);
+      if (harmonic === 1) {
+        gain.gain.exponentialRampToValueAtTime(volume * 0.3, start + duration * 0.75);
+      }
+      gain.gain.exponentialRampToValueAtTime(0.0001, end);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+      osc.start(start);
+      osc.stop(end + 0.03);
+    });
   }
 
   function playAnswerFeedback(isCorrect) {
@@ -419,16 +449,7 @@
       const start = base + index * beat;
       const notes = chordNotes(degree, keyMidi);
 
-      // Root in the bass plus a close, soft triad above it.
-      tone(ctx, 440 * Math.pow(2, (notes[0] - 12 - 69) / 12), start, duration * 0.96, 0.16, 'sine');
-      notes.forEach((note, j) => tone(
-        ctx,
-        440 * Math.pow(2, (note + 12 - 69) / 12),
-        start + j * 0.018,
-        duration,
-        0.075,
-        j === 0 ? 'triangle' : 'sine',
-      ));
+      playChord(ctx, notes, start, duration);
 
       const playbackQuestion = question;
       stepTimers.push(setTimeout(() => {
